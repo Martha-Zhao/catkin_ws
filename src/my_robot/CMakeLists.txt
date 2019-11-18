@@ -80,17 +80,15 @@ include_directories(
 # include/my_robot/imu_filter.h
 #)
 
-## Declare a C++ executable
-add_executable(imu_node src/imu_filter.cpp include/my_robot/imu_filter.h)
-
 ## Add cmake target dependencies of the library
 # add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 #add_dependencies(
 #  imu_node ros_my_robot_generate_messages_cpp
 #)
 
+## Declare a C++ executable
+add_executable(imu_node src/imu_filter.cpp include/my_robot/imu_filter.h)
+target_link_libraries(imu_node ${catkin_LIBRARIES})
 
-## Specify libraries to link a library or executable target against
-target_link_libraries(imu_node
-  ${catkin_LIBRARIES}
-)
+add_executable(laser_node src/laser_pub.cpp src/laser_driver.cpp)
+target_link_libraries(laser_node ${catkin_LIBRARIES})
