@@ -90,5 +90,5 @@ include_directories(
 add_executable(imu_node src/imu_filter.cpp include/my_robot/imu_filter.h)
 target_link_libraries(imu_node ${catkin_LIBRARIES})
 
-add_executable(laser_node src/laser_pub.cpp src/laser_driver.cpp)
+add_executable(laser_node src/laser_node.cpp src/laser_driver.cpp include/my_robot/laser_node.h)
 target_link_libraries(laser_node ${catkin_LIBRARIES})
