@@ -8,6 +8,8 @@
 #include "std_msgs/String.h"
 #include "laser_driver.h"
 
+#include "my_robot/imu_filter_msg.h"
+
 using namespace std;
 
 class LASER{
@@ -33,10 +35,13 @@ class LASER{
         string topic = "laser_scan";
 
         ros::Publisher laser_pub;
+        ros::Subscriber laser_sub_imu;
         sensor_msgs::LaserScan scan_msg;
         int ret;
 
         ros::Time starts, ends; 
+
+        void laser_sub_imu_callback(const my_robot::imu_filter_msg &imu_filter_data);
 };
 
 #endif

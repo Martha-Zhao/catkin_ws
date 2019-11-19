@@ -12,13 +12,16 @@ LASER::LASER(){
 	}
 	else
 		ROS_INFO("open port:%s", port.c_str());
-    
+    driver.StartScan();
+    ROS_INFO("Send start command successfully");
+    laser_sub_imu = n.subscribe("imu_data", 10, &LASER::laser_sub_imu_callback, this);
 };
 
 LASER::~LASER(){};
 
 void LASER::laser_origin_pub_func(){
     starts = ros::Time::now();
+
     memset(data, 0, sizeof(data));
     p_data = data;
     ret = driver.GetScanData(angle, distance, PACKLEN, &speed);
@@ -46,6 +49,12 @@ void LASER::laser_origin_pub_func(){
     laser_pub.publish(scan_msg);
 }
 
+void LASER::laser_sub_imu_callback(const my_robot::imu_filter_msg &imu_filter_data){
+    ROS_INFO("get imu_filter_data!");
+    cout<<imu_filter_data.ang_x<<endl;
+    // ROS_INFO("get imu_filter_data as :%d", &imu_filter_data.ang_x);
+}
+
 void LASER::laser_close(){
     driver.StopScan(STOP_DATA);
     driver.StopScan(STOP_MOTOR);
@@ -55,12 +64,13 @@ void LASER::laser_close(){
 
 
 int main(int argc, char** argv){
-    ros::init(argc, argv, "laser_test_node");
+    ros::init(argc, argv, "laser_node");
     ros::NodeHandle nh;
     ros::Rate r(1.0);
     LASER laser;
     while(nh.ok()){
-        laser.laser_origin_pub_func();
+        laser.laser_origin_pub_func();  
+        // ROS_INFO("LAER SCAN ONCE!");
         ros::spinOnce();
         r.sleep();
     }
