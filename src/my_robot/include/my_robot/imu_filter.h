@@ -57,25 +57,27 @@ class IMU{
         boost::asio::io_service io_service;
         boost::asio::serial_port* serial_port = 0;
         int fd_ = -1;
-        ros::Publisher pub, pub_mag, pub_gps;
-        ros::Publisher imu_pub;
+        ros::Publisher imu_data_pub;
+        sensor_msgs::Imu msg;
+        ros::Publisher imu_fiilter_pub;
+        my_robot::imu_filter_msg imu_filter_msg;
 
         const uint8_t stop[6] = {0xA5, 0x5A, 0x04, 0x02, 0x06, 0xAA};
         const uint8_t mode[6] = {0xA5, 0x5A, 0x04, 0x01, 0x05, 0xAA};
         int data_length = 81;
         uint8_t tmp[81];
         uint8_t data_raw[200];
-        sensor_msgs::Imu msg;
-        sensor_msgs::MagneticField msg_mag;
-        sensor_msgs::NavSatFix msg_gps;
-        my_robot::imu_filter_msg imu_filter_msg;
+        
 
         int imu_init_jump_count = IMU_JUMP_FRAME;
-        double sum_x_acceleration = 0, sum_z_acceleration = 0;
+        double sum_acceleration_x = 0, sum_acceleration_y = 0, sum_acceleration_z = 0; //linear acceleration
+        double sum_angular_x = 0, sum_angular_y = 0, sum_angular_z = 0; //angular velocity
+
         double velociry_x = 0, velocity_z = 0;
         double velociry_x_lase = 0, velocity_z_last = 0;
-
-        double angle_y = 0;
+        
+        double linear_velocity_x = 0, linear_velocity_y = 0, linear_velocity_z = 0;
+        double angle_x = 0, angle_y = 0, angle_z = 0;
 
         //paraments in UKF
         double last_p = 0, now_p = 0;

@@ -198,15 +198,8 @@ IMU::IMU(double input_Q, double input_R){
     n.param("delay", delay, 0.0);
     serial_port = new boost::asio::serial_port(io_service);
     imu_init();
-    pub = n.advertise<sensor_msgs::Imu>("/imu_data", 1);
-    pub_mag = n.advertise<sensor_msgs::MagneticField>("mag", 1);
-    pub_gps = n.advertise<sensor_msgs::NavSatFix>("gps", 1);
-    imu_pub = n.advertise<my_robot::imu_filter_msg>("/imu_filter", 1);
-    // if (originfile == NULL){
-    //     cout<<"wrong when open file"<<endl;
-    // }
-    // else
-    //     cout<<"file opened"<<endl;
+    imu_data_pub = n.advertise<sensor_msgs::Imu>("/imu_data", 1);
+    imu_fiilter_pub = n.advertise<my_robot::imu_filter_msg>("/imu_filter_data", 1);
 };
 
 IMU::~IMU(){};
@@ -261,33 +254,57 @@ void IMU::imu_pub_func(){
                 msg.linear_acceleration.z = d2f_acc(data + 13) * 9.81;  
                 if (imu_init_jump_count == 0){
                     printf("imu initlization DDONE!\n");
-                    printf("The parament is %f\n", sum_x_acceleration/IMU_JUMP_FRAME);
+                    printf("The parament is for linear x is %f\n", sum_acceleration_x/IMU_JUMP_FRAME);
+                    printf("The parament is for linear y is %f\n", sum_acceleration_y/IMU_JUMP_FRAME);
+                    printf("The parament is for linear z is %f\n", sum_acceleration_z/IMU_JUMP_FRAME);
+
+                    printf("The parament is for angular x is %f\n", sum_angular_x/IMU_JUMP_FRAME);
+                    printf("The parament is for angular y is %f\n", sum_angular_y/IMU_JUMP_FRAME);
+                    printf("The parament is for angular z is %f\n", sum_angular_z/IMU_JUMP_FRAME);
+
                     imu_init_jump_count--;
                 }
 
                 if (imu_init_jump_count > 0){
-                    sum_x_acceleration += msg.angular_velocity.y;
-                    // sum_z_acceleration += msg.linear_acceleration.z;
+                    sum_acceleration_x += msg.linear_acceleration.x;
+                    sum_acceleration_y += msg.linear_acceleration.y;
+                    sum_acceleration_z += msg.linear_acceleration.z;
+
+                    sum_angular_x += msg.angular_velocity.x;
+                    sum_angular_y += msg.angular_velocity.y;
+                    sum_angular_z += msg.angular_velocity.z;
+
                     imu_init_jump_count--;
                 }
                 else{
-                    msg.angular_velocity.y -=  sum_x_acceleration/IMU_JUMP_FRAME;
+                    msg.linear_acceleration.x -= sum_acceleration_x/IMU_JUMP_FRAME;
+                    msg.linear_acceleration.y -= sum_acceleration_y/IMU_JUMP_FRAME;
+                    msg.linear_acceleration.z -= sum_acceleration_z/IMU_JUMP_FRAME;
+
+                    msg.angular_velocity.x -=  sum_angular_x/IMU_JUMP_FRAME;
+                    msg.angular_velocity.y -=  sum_angular_y/IMU_JUMP_FRAME;
+                    msg.angular_velocity.z -=  sum_angular_z/IMU_JUMP_FRAME;
+
+                    linear_velocity_x += msg.linear_acceleration.x;
+                    linear_velocity_y += msg.linear_acceleration.y;
+                    linear_velocity_z += msg.linear_acceleration.z;
+
+                    angle_x += msg.angular_velocity.x;
                     angle_y += msg.angular_velocity.y;
-                    // msg.linear_acceleration.z -=  sum_z_acceleration/IMU_JUMP_FRAME;
-                    imu_filter_msg.o_data = angle_y;
-                    imu_filter_func(&angle_y, 0);
-                    imu_filter_msg.f_data = angle_y;
+                    angle_z += msg.angular_velocity.z;
+
+                    
+                    imu_filter_msg.linear_x = linear_velocity_x;
+                    imu_filter_msg.linear_y = linear_velocity_y;
+                    imu_filter_msg.linear_z = linear_velocity_z;
+
+                    imu_filter_msg.ang_x = angle_x;
+                    imu_filter_msg.ang_y = angle_y;
+                    imu_filter_msg.ang_z = angle_z;
                 }
-                // pub.publish(msg);
-                imu_pub.publish(imu_filter_msg);
+                imu_data_pub.publish(msg);
+                imu_fiilter_pub.publish(imu_filter_msg);
 
-
-                // msg_mag.magnetic_field.x = d2f_mag(data + 21);
-                // msg_mag.magnetic_field.y = d2f_mag(data + 23);
-                // msg_mag.magnetic_field.z = d2f_mag(data + 25);
-                // msg_mag.header.stamp = msg.header.stamp;
-                // msg_mag.header.frame_id = msg.header.frame_id;
-                // pub_mag.publish(msg_mag);
                 found = true;
             }
         }
@@ -321,15 +338,15 @@ void IMU::imu_filter_func(double* measurement, int filter_element_flag){
 
 
 int main(int argc, char** argv){
-    ros::init(argc, argv, "imu_filter");
+    ros::init(argc, argv, "imu_node");
     // ros::NodeHandle n;
-    if (argc != 3){
-        printf("please set Q and R\n");
-        return 0;
-    }
-    double q, r;
-    q = atof(*(argv + argc - 2));
-    r = atof(*(argv + argc - 1));
+    // if (argc != 3){
+    //     printf("please set Q and R\n");
+    //     return 0;
+    // }
+    double q = 1, r = 1.5;
+    // q = atof(*(argv + argc - 2));
+    // r = atof(*(argv + argc - 1));
     IMU imu_test(q, r);
     imu_test.imu_pub_func();
     ROS_WARN("imu_pub_func shut dhwn!");
