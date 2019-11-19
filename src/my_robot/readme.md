@@ -17,9 +17,11 @@
 |  imu_node | imu_filter_data| my_robot::imu_filter_msg| angle_x angle_y angle_z linear_x linear_y linear_z|
 | laser_node| laser_scan|  sensor_msgs::LaserScan | origin laser_data|
 
---------------------------
-**check**
+#### ros plot
+rosrun rqt_plot rqt_plot
 
+--------------------------
+**check** \
 rosrun my_robot imu_node laser_node\
 rostopic list : \
     publish: should have /imu_data
@@ -59,3 +61,5 @@ remember when changed!
 ### TODO
 1. use imu_filter_data in /laser_scan
 2. update tf function 
+3. finish temp.cpp to use matrix UKF for imu_data
+4. remember imu_data picture for paper
