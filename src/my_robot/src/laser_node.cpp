@@ -14,7 +14,7 @@ LASER::LASER(){
 		ROS_INFO("open port:%s", port.c_str());
     driver.StartScan();
     ROS_INFO("Send start command successfully");
-    laser_sub_imu = n.subscribe("imu_data", 10, &LASER::laser_sub_imu_callback, this);
+    laser_sub_imu = n.subscribe("imu_filter_data", 10, &LASER::laser_sub_imu_callback, this);
 };
 
 LASER::~LASER(){};
