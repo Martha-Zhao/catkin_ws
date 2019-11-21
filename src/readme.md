@@ -41,7 +41,7 @@ error show as
 ```
 rostopic list shows /laser_scan
 rostopc echo /laser_scan
-NONE!
+nothing show up
 ```
 ***checkout！*** \
  should not start ros::spin() in LASER::LASER \
