@@ -102,3 +102,5 @@ remember when changed!
 8. bags/ in package1
     - save runtime topic data in this filder si that this can be replay
 
+#### TODO
+learn .xml 
