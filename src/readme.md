@@ -103,7 +103,5 @@ remember when changed!
     - save runtime topic data in this filder si that this can be replay
 
 #### TODO
-~~learn .xml~~
-
-#### TODO in 2019-11-24
-finish launch file with imu filter and laser
+~~- learn .xml~~
+- finish launch file
